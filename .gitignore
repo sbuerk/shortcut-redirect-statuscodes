@@ -1,0 +1,12 @@
+.Build/
+Build/phpunit/.phpunit.result.cache
+var/
+/composer.lock
+/composer.json.testing
+/composer.json.orig
+.php-cs-fixer.cache
+.env
+config
+.idea
+Tests/Acceptance/Support/_generated/
+

@@ -1,0 +1,301 @@
+---
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  php-lint:
+    name: "PHP Lint"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "7.4"
+          - "8.0"
+          - "8.1"
+          - "8.2"
+          - "8.3"
+        typo3-version:
+          - 11
+          - 12
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+      - name: Display branch name
+        run: |
+          echo "Current branch: ${{ steps.extract_branch.outputs.branch }}"
+      - name: "Checkout"
+        uses: actions/checkout@v4
+      - name: "Install dependencies for TYPO3 v${{ matrix.typo3-version }} with PHP ${{ matrix.php-version }}"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s composerInstall"
+      - name: "Run PHP lint"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s lintPhp"
+
+  code-quality:
+    name: "Code quality checks"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "8.1"
+        typo3-version:
+          - 11
+          - 12
+        command:
+          - "cgl -n"
+          - "composerNormalize -n"
+          # - "composerNamespaceVerify"
+          - "phpstan"
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+      - name: Display branch name
+        run: |
+          echo "Current branch: ${{ steps.extract_branch.outputs.branch }}"
+      - name: "Checkout"
+        uses: actions/checkout@v4
+      - name: "Install dependencies for TYPO3 v${{ matrix.typo3-version }} with PHP ${{ matrix.php-version }}"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s composerInstall"
+      - name: "Run PHP lint"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s ${{ matrix.command }}"
+
+  unit-tests:
+    name: "Unit tests"
+    runs-on: ubuntu-22.04
+    needs: [php-lint, code-quality]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # TYPO3 v11
+          - typo3-version: "11"
+            php-version: "7.4"
+            composer-command: "composerInstallMin"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "7.4"
+            composer-command: "composerInstallMax"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "8.0"
+            composer-command: "composerInstallMin"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "8.0"
+            composer-command: "composerInstallMax"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "8.1"
+            composer-command: "composerInstallMin"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "8.1"
+            composer-command: "composerInstallMax"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "8.2"
+            composer-command: "composerInstallMin"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "8.2"
+            composer-command: "composerInstallMax"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "8.3"
+            composer-command: "composerInstallMin"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "8.3"
+            composer-command: "composerInstallMax"
+            test-command: "unit"
+          - typo3-version: "11"
+            php-version: "7.4"
+            composer-command: "composerInstallMin"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "7.4"
+            composer-command: "composerInstallMax"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "8.0"
+            composer-command: "composerInstallMin"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "8.0"
+            composer-command: "composerInstallMax"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "8.1"
+            composer-command: "composerInstallMin"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "8.1"
+            composer-command: "composerInstallMax"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "8.2"
+            composer-command: "composerInstallMin"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "8.2"
+            composer-command: "composerInstallMax"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "8.3"
+            composer-command: "composerInstallMin"
+            test-command: "unitRandom"
+          - typo3-version: "11"
+            php-version: "8.3"
+            composer-command: "composerInstallMax"
+            test-command: "unitRandom"
+          # TYPO3 v12
+          - typo3-version: "12"
+            php-version: "8.1"
+            composer-command: "composerInstallMin"
+            test-command: "unit"
+          - typo3-version: "12"
+            php-version: "8.1"
+            composer-command: "composerInstallMax"
+            test-command: "unit"
+          - typo3-version: "12"
+            php-version: "8.2"
+            composer-command: "composerInstallMin"
+            test-command: "unit"
+          - typo3-version: "12"
+            php-version: "8.2"
+            composer-command: "composerInstallMax"
+            test-command: "unit"
+          - typo3-version: "12"
+            php-version: "8.3"
+            composer-command: "composerInstallMin"
+            test-command: "unit"
+          - typo3-version: "12"
+            php-version: "8.3"
+            composer-command: "composerInstallMax"
+            test-command: "unit"
+          - typo3-version: "12"
+            php-version: "8.1"
+            composer-command: "composerInstallMin"
+            test-command: "unitRandom"
+          - typo3-version: "12"
+            php-version: "8.1"
+            composer-command: "composerInstallMax"
+            test-command: "unitRandom"
+          - typo3-version: "12"
+            php-version: "8.2"
+            composer-command: "composerInstallMin"
+            test-command: "unitRandom"
+          - typo3-version: "12"
+            php-version: "8.2"
+            composer-command: "composerInstallMax"
+            test-command: "unitRandom"
+          - typo3-version: "12"
+            php-version: "8.3"
+            composer-command: "composerInstallMin"
+            test-command: "unitRandom"
+          - typo3-version: "12"
+            php-version: "8.3"
+            composer-command: "composerInstallMax"
+            test-command: "unitRandom"
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+      - name: Display branch name
+        run: |
+          echo "Current branch: ${{ steps.extract_branch.outputs.branch }}"
+      - name: "Checkout"
+        uses: actions/checkout@v4
+      - name: "Install dependencies for TYPO3 v${{ matrix.typo3-version }} with PHP ${{ matrix.php-version }}"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s ${{ matrix.composer-command }}"
+      - name: "Run -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s $${{ matrix.test-command }}"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s ${{ matrix.test-command }}"
+
+  functional-tests:
+    name: "Functional tests"
+    runs-on: ubuntu-22.04
+    needs: unit-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "7.4"
+          - "8.0"
+          - "8.1"
+          - "8.2"
+          - "8.3"
+        typo3-version:
+          - "11"
+          - "12"
+        composer-command:
+          - "composerInstallMin"
+          - "composerInstallMax"
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+      - name: Display branch name
+        run: |
+          echo "Current branch: ${{ steps.extract_branch.outputs.branch }}"
+      - name: "Checkout"
+        uses: actions/checkout@v4
+      - name: "Install dependencies for TYPO3 v${{ matrix.typo3-version }} with PHP ${{ matrix.php-version }}"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s ${{ matrix.composer-command }}"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MySQL 5.5 mysqli"
+        if: "matrix.typo3-version == '11'"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 5.5 -d mysql -a mysqli"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MySQL 5.5 pdo_mysql"
+        if: "matrix.typo3-version == '11'"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 5.5 -d mysql -a pdo_mysql"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MySQL 5.6 mysqli"
+        if: "matrix.typo3-version == '11'"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 5.6 -d mysql -a mysqli"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MySQL 5.6 pdo_mysql"
+        if: "matrix.typo3-version == '11'"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 5.6 -d mysql -a pdo_mysql"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MySQL 5.7 mysqli"
+        if: "matrix.typo3-version == '11'"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 5.7 -d mysql -a mysqli"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MySQL 5.7 pdo_mysql"
+        if: "matrix.typo3-version == '11'"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 5.7 -d mysql -a pdo_mysql"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MySQL 8.0 mysqli"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 8.0 -d mysql -a mysqli"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MySQL 8.0 pdo_mysql"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 8.0 -d mysql -a pdo_mysql"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MariaDB 10.2 mysqli"
+        if: "matrix.typo3-version == '11'"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10.2 -d mariadb -a mysqli"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MariaDB 10.2 pdo_mysql"
+        if: "matrix.typo3-version == '11'"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10.2 -d mariadb -a pdo_mysql"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MariaDB 10.3 mysqli"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10.3 -d mariadb -a mysqli"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MariaDB 10.3 pdo_mysql"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10.3 -d mariadb -a pdo_mysql"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MariaDB 10.11 mysqli"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10.11 -d mariadb -a mysqli"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} MariaDB 10.11 pdo_mysql"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10.11 -d mariadb -a pdo_mysql"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} sqlite"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -d sqlite"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} sqlite"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -d sqlite"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} PostgreSQL 10"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10 -d postgres"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} PostgreSQL 10"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10 -d postgres"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} PostgreSQL 16"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10 -d postgres"
+      - name: "TYPO3 v${{ matrix.typo3-version }} PHP ${{ matrix.php-version }} PostgreSQL 16"
+        run: "Build/Scripts/runTests.sh -t ${{ matrix.typo3-version }} -p ${{ matrix.php-version }} -s functional -i 10 -d postgres"

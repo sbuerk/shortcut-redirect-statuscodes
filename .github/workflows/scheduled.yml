@@ -1,0 +1,20 @@
+---
+name: Scheduled
+on:
+  schedule:
+    - cron: '42 5 * * *'
+
+jobs:
+  main:
+    name: "kick-off nightlies"
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        workflowName:
+          - "ci.yml"
+        branch:
+          - "main"
+    steps:
+      - name: Execute ${{ matrix.workflowName }} on ${{ matrix.branch }}
+        run: |
+          gh workflow run ${{ matrix.workflowName }} --ref ${{ matrix.branch }}
