@@ -49,7 +49,8 @@ jobs:
           - 12
         command:
           - "cgl -n"
-          - "composerNormalize -n"
+          # @todo Disabled due to https://github.com/ergebnis/composer-normalize/issues/1287
+          # - "composerNormalize -n"
           # - "composerNamespaceVerify"
           - "phpstan"
     steps:
