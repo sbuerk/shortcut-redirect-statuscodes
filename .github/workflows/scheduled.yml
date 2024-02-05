@@ -8,6 +8,7 @@ jobs:
   main:
     name: "kick-off nightlies"
     runs-on: ubuntu-22.04
+    permissions: write-all
     strategy:
       matrix:
         workflowName:
