@@ -16,9 +16,14 @@ jobs:
           - "ci.yml"
         branch:
           - "main"
-    env:
-      GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: '${{ matrix.branch }}'
+
       - name: Execute ${{ matrix.workflowName }} on ${{ matrix.branch }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh workflow run ${{ matrix.workflowName }} --ref ${{ matrix.branch }}
