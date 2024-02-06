@@ -3,6 +3,7 @@ name: Scheduled
 on:
   schedule:
     - cron: '42 5 * * *'
+  workflow_dispatch:
 
 jobs:
   main:
@@ -15,6 +16,8 @@ jobs:
           - "ci.yml"
         branch:
           - "main"
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Execute ${{ matrix.workflowName }} on ${{ matrix.branch }}
         run: |
