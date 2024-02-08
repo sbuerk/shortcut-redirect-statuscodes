@@ -235,7 +235,7 @@ Options:
         replay the unit tests in that order.
 
     -n
-        Only with -s cgl|composerNormalize
+        Only with -s cgl
         Activate dry-run in CGL check that does not actively change files and only prints broken ones.
 
     -u
@@ -494,7 +494,7 @@ case ${TEST_SUITE} in
         ;;
     composer)
         COMMAND=(composer "$@")
-        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-command-${SUFFIX} -e COMPOSER_CACHE_DIR=.Build/.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} /bin/sh -c "${COMMAND[@]}"
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-command-${SUFFIX} -e COMPOSER_CACHE_DIR=.Build/.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} "${COMMAND[@]}"
         SUITE_EXIT_CODE=$?
         ;;
     composerInstall)
@@ -549,16 +549,6 @@ case ${TEST_SUITE} in
         SUITE_EXIT_CODE=$?
         cp ${ROOT_DIR}/composer.json ${ROOT_DIR}/composer.json.testing
         mv ${ROOT_DIR}/composer.json.orig ${ROOT_DIR}/composer.json
-        ;;
-    composerNormalize)
-        COMMAND="composer ci:composer:normalize"
-        if [ "${CGLCHECK_DRY_RUN}" -eq 1 ]; then
-            COMMAND="composer composer:normalize:check"
-        else
-            COMMAND="composer composer:normalize:fix"
-        fi
-        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-normalize-${SUFFIX} -e COMPOSER_CACHE_DIR=.Build/.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} ${COMMAND}
-        SUITE_EXIT_CODE=$?
         ;;
     functional)
         COMMAND=(.Build/bin/phpunit -c Build/phpunit/FunctionalTests-${CORE_VERSION}.xml --exclude-group not-${DBMS} "$@")
