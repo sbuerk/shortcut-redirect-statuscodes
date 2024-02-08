@@ -1,8 +1,11 @@
 includes:
   - phpstan-baseline.neon
+  - ../../.Build/vendor/bnf/phpstan-psr-container/extension.neon
+  - ../../.Build/vendor/friendsoftypo3/phpstan-typo3/extension.neon
+  - ../../.Build/vendor/phpstan/phpstan-phpunit/extension.neon
 
 parameters:
-  level: 6
+  level: max
 
   # Use local cache dir instead of /tmp
   tmpDir: ../../.Build/.cache/phpstan
@@ -12,6 +15,9 @@ parameters:
     - ../../Tests
 
   excludePaths:
+    # excluded due to nasty class alias hack
+    - ../../Classes/Service/ShortcutAndMountpointRedirectService.php
+    # exclude generated codeception files
     - ../../Tests/Acceptance/Support/BackendTester.php
     - ../../Tests/Acceptance/Backend/ModuleCest.php
     - ../../Tests/Acceptance/Backend/GenerateCommandCest.php

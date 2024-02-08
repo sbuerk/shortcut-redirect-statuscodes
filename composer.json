@@ -13,7 +13,11 @@
         "php": "^7.4 || ^8.0 || ^8.1 || ^8.2 || ^8.3",
         "typo3/cms-backend": "^11.5.4 || ^12.4",
         "typo3/cms-core": "^11.5.4 || ^12.4",
-        "typo3/cms-frontend": "^11.5.4 || ^12.4"
+        "typo3/cms-frontend": "^11.5.4 || ^12.4",
+        "psr/http-message": "^1.0 || ^2.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "psr/log": "^1.0 || ^2.0 || ^3.0"
     },
     "require-dev": {
         "bnf/phpstan-psr-container": "^1.0",
@@ -27,10 +31,10 @@
         "typo3/cms-beuser": "^11.5.4 || ^12.4",
         "typo3/cms-install": "^11.5.4 || ^12.4",
         "typo3/cms-setup": "^11.5.4 || ^12.4",
+        "typo3/cms-workspaces": "^11.5.4 || ^12.4",
         "typo3/tailor": "^1.4.0",
         "typo3/testing-framework": "^7.0.4"
     },
-    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "StefanBuerk\\ShortcutRedirectStatuscodes\\": "Classes/"
@@ -47,7 +51,8 @@
             "typo3/cms-composer-installers": true
         },
         "bin-dir": ".Build/bin",
-        "vendor-dir": ".Build/vendor"
+        "vendor-dir": ".Build/vendor",
+        "sort-packages": true
     },
     "extra": {
         "typo3/cms": {
