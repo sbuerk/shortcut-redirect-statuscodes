@@ -1,0 +1,15 @@
+services:
+  # general settings
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  StefanBuerk\ShortcutRedirectStatuscodes\:
+    resource: '../Classes/*'
+
+  sbuerk.shortcutandmountpointredirectservice:
+    class: StefanBuerk\ShortcutRedirectStatuscodes\Service\ShortcutAndMountPointRedirectService
+
+  StefanBuerk\ShortcutRedirectStatuscodes\Service\ShortcutAndMountPointRedirectServiceInterface: '@sbuerk.shortcutandmountpointredirectservice'
+

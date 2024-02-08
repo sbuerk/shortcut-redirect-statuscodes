@@ -498,6 +498,7 @@ case ${TEST_SUITE} in
         SUITE_EXIT_CODE=$?
         ;;
     composerInstall)
+        rm -rf .Build/typo3 .Build/vendor .Build/Web
         cp ${ROOT_DIR}/composer.json ${ROOT_DIR}/composer.json.orig
         if [ -f "${ROOT_DIR}/composer.json.testing" ]; then
             cp ${ROOT_DIR}/composer.json ${ROOT_DIR}/composer.json.orig
@@ -513,6 +514,7 @@ case ${TEST_SUITE} in
         mv ${ROOT_DIR}/composer.json.orig ${ROOT_DIR}/composer.json
         ;;
     composerInstallMax)
+        rm -rf .Build/typo3 .Build/vendor .Build/Web
         cp ${ROOT_DIR}/composer.json ${ROOT_DIR}/composer.json.orig
         if [ -f "${ROOT_DIR}/composer.json.testing" ]; then
             cp ${ROOT_DIR}/composer.json ${ROOT_DIR}/composer.json.orig
@@ -532,6 +534,7 @@ case ${TEST_SUITE} in
         mv ${ROOT_DIR}/composer.json.orig ${ROOT_DIR}/composer.json
         ;;
     composerInstallMin)
+        rm -rf .Build/typo3 .Build/vendor .Build/Web
         cp ${ROOT_DIR}/composer.json ${ROOT_DIR}/composer.json.orig
         if [ -f "${ROOT_DIR}/composer.json.testing" ]; then
             cp ${ROOT_DIR}/composer.json ${ROOT_DIR}/composer.json.orig
@@ -601,11 +604,13 @@ case ${TEST_SUITE} in
         SUITE_EXIT_CODE=$?
         ;;
     unit)
-        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name unit-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} .Build/bin/phpunit -c Build/phpunit/UnitTests-${CORE_VERSION}.xml
+        COMMAND=(.Build/bin/phpunit -c Build/phpunit/UnitTests-${CORE_VERSION}.xml "$@")
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name unit-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
         SUITE_EXIT_CODE=$?
         ;;
     unitRandom)
-        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name unit-random-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} .Build/bin/phpunit -c Build/phpunit/UnitTests-${CORE_VERSION}.xml --order-by=random ${PHPUNIT_RANDOM}
+        COMMAND=(.Build/bin/phpunit -c Build/phpunit/UnitTests-${CORE_VERSION}.xml --order-by=random ${PHPUNIT_RANDOM} "$@")
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name unit-random-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
         SUITE_EXIT_CODE=$?
         ;;
     update)

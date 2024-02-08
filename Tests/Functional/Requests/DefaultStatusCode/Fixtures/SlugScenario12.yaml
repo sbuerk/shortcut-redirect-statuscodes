@@ -1,0 +1,194 @@
+__variables:
+  - &pageStandard 0
+  - &pageExternalUrl 3
+  - &pageShortcut 4
+  - &pageMount 7
+  - &pageSpacer 199
+  - &pageFolder 254
+  - &contentText 'text'
+  - &idAcmeRootPage 1000
+  - &idAcmeFirstPage 1100
+
+entitySettings:
+  '*':
+    nodeColumnName: 'pid'
+    columnNames: {id: 'uid', language: 'sys_language_uid'}
+    defaultValues: {pid: 0}
+  page:
+    isNode: true
+    tableName: 'pages'
+    parentColumnName: 'pid'
+    languageColumnNames: ['l10n_parent', 'l10n_source']
+    columnNames: {type: 'doktype', root: 'is_siteroot', mount: 'mount_pid', visitorGroups: 'fe_group'}
+    defaultValues: {hidden: 0, doktype: *pageStandard}
+    valueInstructions:
+      shortcut:
+        first: {shortcut: 0, shortcut_mode: 1}
+  content:
+    tableName: 'tt_content'
+    languageColumnNames: ['l18n_parent', 'l10n_source']
+    columnNames: {title: 'header', type: 'CType'}
+  workspace:
+    tableName: 'sys_workspace'
+  visitorGroup:
+    tableName: 'fe_groups'
+  visitor:
+    tableName: 'fe_users'
+    columnNames: {groups: 'usergroup'}
+  typoscript:
+    tableName: 'sys_template'
+    valueInstructions:
+      type:
+        site: {root: 1, clear: 1}
+
+entities:
+  workspace:
+    - self: {id: 1, title: 'Workspace'}
+  page:
+    - self: {id: *idAcmeRootPage, title: 'ACME Inc', type: *pageShortcut, shortcut: 'first', root: true, slug: '/'}
+      children:
+        - self: {id: *idAcmeFirstPage, title: 'EN: Welcome', slug: '/welcome', subtitle: 'hello-and-welcome'}
+          languageVariants:
+            - self: {id: 1101, title: 'FR: Welcome', language: 1, slug: '/bienvenue', subtitle: 'salut-et-bienvenue'}
+            - self: {id: 1102, title: 'FR-CA: Welcome', language: 2, slug: '/bienvenue', subtitle: 'salut-et-bienvenue'}
+            - self: {id: 1103, title: 'ZH-CN: Welcome', language: 4, slug: '/简-bienvenue', subtitle: 'salut-et-bienvenue'}
+          versionVariants:
+            - version: {title: 'EN: Welcome to ACME Inc', workspace: 1, slug: '/welcome-modified'}
+          entities:
+            content:
+              - self: {title: 'EN: Content Element #1', type: *contentText}
+                # @todo does not work due to a bug in DataHandler's remap stack for l10n_source
+                languageVariants:
+                  - self: {title: 'FR: Content Element #1', type: *contentText, language: 1}
+                    languageVariants:
+                      - self: {title: 'FR-CA: Content Element #1', type: *contentText, language: 2}
+              - self: {title: 'EN: Content Element #2', type: *contentText}
+        - self: {id: 1110, title: 'ZH-CN: Welcome Default', slug: '/简-bienvenue', subtitle: 'salut-et-bienvenue'}
+          languageVariants:
+            - self: {id: 1111, title: 'FR: Welcome ZH Default', language: 1, slug: '/zh-bienvenue', subtitle: 'salut-et-bienvenue'}
+            - self: {id: 1112, title: 'FR-CA: Welcome ZH Default', language: 2, slug: '/zh-bienvenue', subtitle: 'salut-et-bienvenue'}
+          entities:
+            content:
+              - self: {title: 'EN: Content Element #1', type: *contentText}
+        - self: {id: 1200, title: 'EN: Features', slug: '/features'}
+          children:
+            # This page has a trailing slash as "slug" which is explicitly covered in tests as well
+            - self: {id: 1210, title: 'EN: Frontend Editing', slug: '/features/frontend-editing/'}
+        - self: {id: 1300, title: 'EN: Products', root: true, slug: '/products'}
+          children:
+            - self: {id: 1310, title: 'EN: Planets', slug: '/products/planets'}
+            - self: {id: 1320, title: 'EN: Spaceships', slug: '/products/spaceships'}
+            - self: {id: 1330, title: 'EN: Dark Matter', slug: '/products/dark-matter'}
+        - self: {id: 1400, title: 'EN: ACME in your Region', root: true, slug: '/acme-in-your-region'}
+          languageVariants:
+            - self: {id: 1401, title: 'FR: ACME in your Region', language: 1, slug: '/acme-dans-votre-region'}
+            - self: {id: 1402, title: 'FR-CA: ACME in your Region', language: 2, slug: '/acme-dans-votre-quebec'}
+          children:
+            - self: {id: 1410, title: 'EN: Groups', slug: '/acme-in-your-region/groups', l18n_cfg: 1}
+              languageVariants:
+                - self: {id: 1411, title: 'FR: Groups', language: 1, slug: '/acme-dans-votre-region/groupes'}
+                - self: {id: 1412, title: 'FR-CA: Groups', language: 2, slug: '/acme-dans-votre-quebec/groupes'}
+        - self: {id: 1450, type: *pageSpacer, title: 'Divider', slug: '/divider'}
+          children:
+            - self: {id: 1460, title: 'EN: Subpage of Spacer', slug: '/divider/subpage-of-spacer' }
+        - self: {id: 1500, title: 'Internal', slug: '/my-acme'}
+          children:
+            - self: {id: 1510, title: 'Whitepapers', visitorGroups: -2, extendToSubpages: true, slug: '/my-acme/whitepapers'}
+              languageVariants:
+                - self: {id: 1513, title: 'FR: Whitepapers', language: 1, slug: '/my-acme/papiersblanc'}
+                - self: {id: 1514, title: 'FR-CA: Whitepapers', language: 2, slug: '/my-acme-ca/papiersblanc'}
+              children:
+                - self: {id: 1511, title: 'Products', slug: '/my-acme/whitepapers/products'}
+                - self: {id: 1512, title: 'Solutions', visitorGroups: 10, slug: '/my-acme/whitepapers/solutions'}
+                  languageVariants:
+                    - self: {id: 1516, title: 'FR: La Solutions', language: 1, slug: '/my-acme/papiersblanc/la-solutions'}
+                    - self: {id: 1517, title: 'FR-CA: La Solutions', language: 2, slug: '/my-acme-ca/papiersblanc/la-solutions'}
+                - self: {id: 1515, title: 'Research', visitorGroups: 20, slug: '/my-acme/whitepapers/research'}
+                  languageVariants:
+                    - self: {id: 1518, title: 'FR: Research', language: 1, slug: '/my-acme/papiersblanc/recherche'}
+                    - self: {id: 1519, title: 'FR-CA: Research', language: 2, slug: '/my-acme-ca/papiersblanc/recherche'}
+            - self: {id: 1520, title: 'Forecasts', visitorGroups: 20, extendToSubpages: true, slug: '/my-acme/forecasts'}
+              children:
+                - self: {id: 1521, title: 'Current Year', slug: '/my-acme/forecasts/current-year'}
+                - self: {id: 1522, title: 'Next Year', slug: '/my-acme/forecasts/next-year'}
+                - self: {id: 1523, title: 'Five Years', slug: '/my-acme/forecasts/five-years'}
+            - self: {id: 1530, title: 'Employees', slug: '/my-acme/employees', type: *pageShortcut, shortcut: 'first' }
+              children:
+                - self: {id: 1531, title: 'Employee of the year', visitorGroups: -2, slug: '/my-acme/employees/employee-of-the-year'}
+        - self: {id: 1600, title: 'About us', slug: '/about'}
+        - self: {id: 1700, title: 'Announcements & News', type: *pageMount, mount: 7100, slug: '/news'}
+        - self: {id: 1800, title: 'Work in progress', hidden: 1, slug: '/never-visible-working-on-it' }
+        - self: {id: 403, title: 'That page is forbidden to you', slug: '/403'}
+        - self: {id: 404, title: 'That page was not found', slug: '/404'}
+          entities:
+            content:
+              - self: {title: 'EN: Page not found', type: *contentText}
+        - self: {id: 1930, title: 'Our Blog', type: *pageShortcut, shortcut: 2000, slug: '/blog'}
+        - version: {id: 1950, title: 'EN: Goodbye', workspace: 1, slug: '/bye'}
+        - self: {id: 1990, title: 'Storage', type: *pageFolder, slug: '/internal/storage'}
+          entities:
+            visitorGroup:
+              - self: {id: 10, title: 'Customers'}
+              - self: {id: 20, title: 'Partners'}
+              - self: {id: 30, title: 'SysFolder Restricted'}
+            visitor:
+              - self: {id: 1, username: 'john@doe.local', groups: '10'}
+              - self: {id: 2, username: 'manager@other-inc.local', groups: '20'}
+              - self: {id: 3, username: 'big-boss@acme-inc.local', groups: '10,20'}
+              - self: {id: 4, username: 'sysfolder-king@acme-inc.local', groups: '30'}
+        - self: {id: 2020, title: 'SysFolder Restricted', type: *pageFolder, slug: '/internal/sysfolder-restricted'}
+          children:
+            - self: {id: 2021, title: 'FEGroups Restricted', visitorGroups: 30, slug: '/sysfolder-restricted'}
+            - self: {id: 2022, title: 'FEGroups Restricted', hidden: 1, visitorGroups: 30, slug: '/sysfolder-restricted-hidden'}
+        - self: {id: 2030, title: 'Cross Site Shortcut', slug: '/cross-site-shortcut', type: *pageShortcut, shortcut: 2100}
+          languageVariants:
+            - self: {id: 2031, title: 'Shortcut to Research - shows a different page', language: 1, type: *pageShortcut, shortcut: 1400, slug: '/other-cross-site-shortcut', l10n_state: '{"starttime":"parent","endtime":"parent","nav_hide":"parent","url":"parent","lastUpdated":"parent","newUntil":"parent","no_search":"parent","shortcut":"custom","shortcut_mode":"parent","content_from_pid":"parent","author":"parent","author_email":"parent","media":"parent","og_image":"parent","twitter_image":"parent"}' }
+    - self: {id: 2000, title: 'ACME Blog', type: *pageShortcut, shortcut: 'first', root: true, slug: '/'}
+      children:
+        - self: {id: 2100, title: 'Authors', slug: '/authors'}
+          children:
+            - self: {id: 2110, title: 'John Doe', slug: '/john'}
+              children:
+                - self: {id: 2111, title: 'About', slug: '/about-john'}
+            - self: {id: 2120, title: 'Jane Doe', slug: '/jane'}
+              children:
+                - self: {id: 2121, title: 'About', slug: '/about-jane'}
+            - self: {id: 2130, title: 'Malloy Doe', slug: '/malloy'}
+              children:
+                - self: {id: 2131, title: 'About Malloy - Hidden', hidden: 1, 'slug': '/malloy/about'}
+                - self: {id: 2132, title: 'Malloys History - Hidden', hidden: 1, 'slug': '/malloy/history'}
+        - self: {id: 2700, title: 'Announcements & News', type: *pageMount, mount: 7100, slug: '/news'}
+        - self: {id: 2800, title: 'What is a blog on Wikipedia ', type: *pageExternalUrl, url: 'https://en.wikipedia.org/wiki/Blog', slug: '/what-is-a-blog', target: 'a_new_tab' }
+        - self: {id: 2810, title: 'Link to a query parameter', type: *pageExternalUrl, url: '?showOption=1', slug: '/query-parameter' }
+        - self: {id: 2900, title: 'What is Wikipedia in a separate window ', type: *pageExternalUrl, url: 'https://en.wikipedia.org/', slug: '/wikipedia' }
+          children:
+            - self: {id: 2910, title: 'Contact wikipedia', type: *pageExternalUrl, url: 'mailto:you-never-get-an-answer', nav_hide: 1, slug: '/wikipedia/send-an-email' }
+        - self: {id: 2930, title: 'ACME Inc', type: *pageShortcut, shortcut: 1000, slug: '/acme'}
+    - self: {id: 3000, title: 'ACME Archive', root: true, slug: '/'}
+      languageVariants:
+        - self: {id: 3001, title: 'FR: Archive', language: 1, slug: '/'}
+        - self: {id: 3002, title: 'FR-CA: Archive', language: 2, slug: '/'}
+      children:
+        - self: {id: 3100, title: 'EN: Statistics', slug: '/statistics'}
+          languageVariants:
+            - self: {id: 3101, title: 'FR: Statistics', language: 1, slug: '/statistics'}
+            - self: {id: 3102, title: 'FR-CA: Statistics', language: 2, slug: '/statistics'}
+          children:
+            - self: {id: 3110, title: 'EN: Markets', slug: '/markets'}
+            - self: {id: 3120, title: 'EN: Products', slug: '/products'}
+            - self: {id: 3130, title: 'EN: Partners', slug: '/partners'}
+        - self: {id: 3200, title: 'EN: Stock Index', slug: '/stock-index'}
+    - self: {id: 7000, title: 'Common Collection', type: *pageFolder, root: true, slug: '/common'}
+      children:
+        - self: {id: 7100, title: 'Announcements & News', slug: '/common/news'}
+          children:
+            - self: {id: 7110, title: 'Markets', slug: '/common/markets'}
+            - self: {id: 7120, title: 'Products', slug: '/common/products'}
+            - self: {id: 7130, title: 'Partners', slug: '/common/partners', target: '_blank' }
+    - self: {id: 8000, title: 'Usual Collection Non-Root', root: true, slug: '/usual'}
+      children:
+        - self: {id: 8100, title: 'Announcements & News', type: *pageFolder, slug: '/usual/news-folder'}
+          children:
+            - self: {id: 8110, title: 'Markets', slug: '/usual/markets'}
+            - self: {id: 8120, title: 'Products', slug: '/usual/products'}
+            - self: {id: 8130, title: 'Partners', slug: '/usual/partners'}
