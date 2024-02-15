@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+	<file source-language="en" datatype="plaintext" original="messages" date="2024-02-16T11:48:25Z" product-name="shortcut_redirect_statuscodes">
+		<header/>
+		<body>
+			<trans-unit id="redirect_code.label" xml:space="preserve">
+				<source>HTTP StatusCode</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcutandmountpoint_label" xml:space="preserve">
+				<source>HTTP StatusCode (Default 307 Temporary Redirect)</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.external_label" xml:space="preserve">
+				<source>HTTP StatusCode (Default 307 Temporary Redirect)</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.statuscode_default" xml:space="preserve">
+				<source>Default</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcut.statuscode_301" xml:space="preserve">
+				<source>301 Moved Permanently</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcut.statuscode_302" xml:space="preserve">
+				<source>302 Found (Previously "Moved temporarily")</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcut.statuscode_303" xml:space="preserve">
+				<source>303 See Other</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcut.statuscode_307" xml:space="preserve">
+				<source>307 Temporary Redirect</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcut.statuscode_308" xml:space="preserve">
+				<source>308 Permanent Redirect</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcut.statuscode_group_default" xml:space="preserve">
+				<source>Default</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcut.statuscode_group_keep" xml:space="preserve">
+				<source>Keep HTTP method</source>
+			</trans-unit>
+			<trans-unit id="redirect_code.shortcut.statuscode_group_change" xml:space="preserve">
+				<source>Change HTTP method to GET</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

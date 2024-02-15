@@ -17,11 +17,11 @@ entitySettings:
     tableName: 'pages'
     parentColumnName: 'pid'
     languageColumnNames: ['l10n_parent', 'l10n_source']
-    columnNames: {type: 'doktype', root: 'is_siteroot', mount: 'mount_pid', visitorGroups: 'fe_group'}
-    defaultValues: {hidden: 0, doktype: *pageStandard}
+    columnNames: {type: 'doktype', root: 'is_siteroot', mount: 'mount_pid', visitorGroups: 'fe_group', statuscode: 'redirect_code'}
+    defaultValues: {hidden: 0, doktype: *pageStandard, statuscode: 0}
     valueInstructions:
       shortcut:
-        first: {shortcut: 0, shortcut_mode: 1}
+        first: {shortcut: 0, shortcut_mode: 1, statuscode: 0}
   content:
     tableName: 'tt_content'
     languageColumnNames: ['l18n_parent', 'l10n_source']

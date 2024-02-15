@@ -19,11 +19,11 @@ entitySettings:
     tableName: 'pages'
     parentColumnName: 'pid'
     languageColumnNames: ['l10n_parent', 'l10n_source']
-    columnNames: {type: 'doktype', root: 'is_siteroot', mount: 'mount_pid', visitorGroups: 'fe_group'}
-    defaultValues: {hidden: 0, doktype: *pageStandard}
+    columnNames: {type: 'doktype', root: 'is_siteroot', mount: 'mount_pid', visitorGroups: 'fe_group', statuscode: 'redirect_code'}
+    defaultValues: {hidden: 0, doktype: *pageStandard, statuscode: 0}
     valueInstructions:
       shortcut:
-        first: {shortcut: 0, shortcut_mode: 1}
+        first: {shortcut: 0, shortcut_mode: 1, statuscode: 0}
   content:
     tableName: 'tt_content'
     languageColumnNames: ['l18n_parent', 'l10n_source']
@@ -162,10 +162,10 @@ entities:
                 - self: {id: 2131, title: 'About Malloy - Hidden', hidden: 1, 'slug': '/malloy/about'}
                 - self: {id: 2132, title: 'Malloys History - Hidden', hidden: 1, 'slug': '/malloy/history'}
         - self: {id: 2700, title: 'Announcements & News', type: *pageMount, mount: 7100, slug: '/news'}
-        - self: {id: 2800, title: 'What is a blog on Wikipedia ', type: *pageExternalUrl, url: 'https://en.wikipedia.org/wiki/Blog', slug: '/what-is-a-blog', target: 'a_new_tab' }
-        - self: {id: 2900, title: 'What is Wikipedia in a separate window ', type: *pageExternalUrl, url: 'https://en.wikipedia.org/', slug: '/wikipedia' }
+        - self: {id: 2800, title: 'What is a blog on Wikipedia ', type: *pageExternalUrl, url: 'https://en.wikipedia.org/wiki/Blog', slug: '/what-is-a-blog', target: 'a_new_tab', statuscode: 0 }
+        - self: {id: 2900, title: 'What is Wikipedia in a separate window ', type: *pageExternalUrl, url: 'https://en.wikipedia.org/', slug: '/wikipedia', statuscode: 0 }
           children:
-            - self: {id: 2910, title: 'Contact wikipedia', type: *pageExternalUrl, url: 'mailto:you-never-get-an-answer', nav_hide: 1, slug: '/wikipedia/send-an-email' }
+            - self: {id: 2910, title: 'Contact wikipedia', type: *pageExternalUrl, url: 'mailto:you-never-get-an-answer', nav_hide: 1, slug: '/wikipedia/send-an-email', statuscode: 0 }
         - self: {id: 2930, title: 'ACME Inc', type: *pageShortcut, shortcut: 1000, slug: '/acme'}
     - self: {id: 3000, title: 'ACME Archive', root: true, slug: '/'}
       languageVariants:

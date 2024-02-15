@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS project.
+ * This file is part of the "shortcut_redirect_statuscodes" Extension for TYPO3 CMS.
  *
  * It is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, either version 2
@@ -56,7 +56,10 @@ abstract class AbstractShortcutAndMountpointRedirectService implements ShortcutA
 
         // Check for shortcut page and mount point redirect
         try {
-            $redirectToUri = $this->getRedirectUri($request);
+            [
+                'uri' => $redirectToUri,
+                'statusCode' => $redirectStatusCode,
+            ] = $this->getRedirectUriInformation($request);
         } catch (ImmediateResponseException $e) {
             return $e->getResponse();
         }
@@ -66,7 +69,7 @@ abstract class AbstractShortcutAndMountpointRedirectService implements ShortcutA
             $message = 'SBUERK Shortcut/Mountpoint' . ($exposeInformation ? ' at page with ID ' . $pageArguments->getPageId() : '');
             return new RedirectResponse(
                 $redirectToUri,
-                307,
+                (int)$redirectStatusCode,
                 ['X-Redirect-By' => $message]
             );
         }
@@ -83,11 +86,12 @@ abstract class AbstractShortcutAndMountpointRedirectService implements ShortcutA
                 $controller->page['url'],
                 $normalizedParams->getSiteUrl()
             );
+            $redirectStatusCode = $this->determineExternalUriRedirectCode($controller->page);
             $message = 'SBUERK External URL' . ($exposeInformation ? ' at page with ID ' . $controller->page['uid'] : '');
             if (!empty($externalUrl)) {
                 return new RedirectResponse(
                     $externalUrl,
-                    303,
+                    (int)$redirectStatusCode,
                     ['X-Redirect-By' => $message]
                 );
             }
@@ -125,15 +129,65 @@ abstract class AbstractShortcutAndMountpointRedirectService implements ShortcutA
      */
     abstract protected function createPageAccessFailureReasons(ServerRequestInterface $request, RequestHandlerInterface $handler): ?ResponseInterface;
 
-    protected function getRedirectUri(ServerRequestInterface $request): ?string
+    /**
+     * @param ServerRequestInterface $request
+     * @return array{uri: string|null, statusCode: int|null}
+     * @throws ImmediateResponseException
+     */
+    protected function getRedirectUriInformation(ServerRequestInterface $request): array
     {
         /** @var TypoScriptFrontendController $controller */
         $controller = $request->getAttribute('frontend.controller');
+        // shortcut
         $redirectToUri = $controller->getRedirectUriForShortcut($request);
         if ($redirectToUri !== null) {
-            return $redirectToUri;
+            return [
+                'uri' => $redirectToUri,
+                'statusCode' => $this->determineShortcutRedirectCode($this->getOriginalShortcutPage($controller)),
+            ];
         }
-        return $controller->getRedirectUriForMountPoint($request);
+        // mountpoint
+        $redirectToUri = $controller->getRedirectUriForMountPoint($request);
+        if ($redirectToUri !== null) {
+            return [
+                'uri' => $redirectToUri,
+                'statusCode' => $this->determineMountpointRedirectCode($this->getOriginalMountPointPage($controller)),
+            ];
+        }
+        return [
+            'uri' => null,
+            'statusCode' => null,
+        ];
+    }
+
+    /**
+     * @param array<string, string|int|float|bool|null>|null $page
+     */
+    protected function determineShortcutRedirectCode(?array $page = null): int
+    {
+        return ((int)($page['redirect_code'] ?? null) > 0)
+            ? (int)($page['redirect_code'] ?? null)
+            : 307;
+    }
+
+    /**
+     * @param array<string, string|int|float|bool|null>|null $page
+     */
+    protected function determineMountpointRedirectCode(?array $page = null): int
+    {
+        return ((int)($page['redirect_code'] ?? null) > 0)
+            ? (int)($page['redirect_code'] ?? null)
+            : 307;
+    }
+
+    /**
+     * @param array<string, string|int|float|bool|null>|null $page
+     */
+    protected function determineExternalUriRedirectCode(?array $page = null): int
+    {
+        return ((int)($page['redirect_code'] ?? null) > 0)
+            ? (int)($page['redirect_code'] ?? null)
+            : 303;
     }
 
     protected function prefixExternalPageUrl(string $redirectTo, string $sitePrefix): string
@@ -149,5 +203,33 @@ abstract class AbstractShortcutAndMountpointRedirectService implements ShortcutA
             }
         }
         return $redirectTo;
+    }
+
+    /**
+     * @return array<string, string|int|float|bool|null>|null
+     */
+    protected function getOriginalShortcutPage(TypoScriptFrontendController $controller): ?array
+    {
+        return \Closure::bind(
+            function (): ?array {
+                return $this->originalShortcutPage;
+            },
+            $controller,
+            TypoScriptFrontendController::class
+        )->call($controller);
+    }
+
+    /**
+     * @return array<string, string|int|float|bool|null>|null
+     */
+    protected function getOriginalMountPointPage(TypoScriptFrontendController $controller): ?array
+    {
+        return \Closure::bind(
+            function (): ?array {
+                return $this->originalMountPointPage;
+            },
+            $controller,
+            TypoScriptFrontendController::class
+        )->call($controller);
     }
 }
